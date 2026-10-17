@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#2b2a28"/>
+  <text x="32" y="45" text-anchor="middle" font-family="'Noto Serif TC','Songti TC','PMingLiU',serif" font-size="38" font-weight="700" fill="#f6f1ea">古</text>
+  <rect x="18" y="52" width="28" height="3" rx="1.5" fill="#b5805a"/>
+</svg>

@@ -1,0 +1,433 @@
+{
+  "meta": {
+    "title": "古問 LORE",
+    "description": "Start from a question you care about, read the classic itself, form your own view — then talk."
+  },
+  "brand": {
+    "tagline": "Read before you react.",
+    "home": "古問 LORE home"
+  },
+  "nav": {
+    "library": "Library",
+    "me": "Me",
+    "admin": "Admin",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "language": "Language",
+    "switchTo": "中文",
+    "skipToContent": "Skip to main content"
+  },
+  "home": {
+    "heroTitle": "Read before you react.",
+    "heroBody": "LORE starts from questions you face today and takes you to texts written two thousand years ago. AI helps you understand — it never answers for you. Write your own view first; then you see everyone else's.",
+    "cta": "Start with a question",
+    "barriersTitle": "Why are the classics so hard to read?",
+    "barriers": {
+      "why": {
+        "problem": "You don't know why you should read them",
+        "solution": "Start from a contemporary question, not a book title."
+      },
+      "understand": {
+        "problem": "You can't understand them",
+        "solution": "AI explains words, people and history — but never gives you a conclusion."
+      },
+      "stop": {
+        "problem": "You finish and stop",
+        "solution": "Write your own answer first to unlock others' views and join the discussion."
+      }
+    },
+    "questionsTitle": "Questions of the week",
+    "questionsEmpty": "No questions yet — check back soon.",
+    "readers": "{count, plural, =0 {No readers yet} one {# reader} other {# readers}}",
+    "comingSoon": "Text coming soon",
+    "howTitle": "How LORE works",
+    "notConfigured": "Demo mode: Supabase is not connected yet, so built-in sample content is shown."
+  },
+  "steps": {
+    "question": "Question",
+    "text": "Text",
+    "companion": "AI Companion",
+    "reflection": "Reflection",
+    "unlock": "Unlock",
+    "discussion": "Discussion",
+    "insight": "AI Insight"
+  },
+  "tags": {
+    "politics": "Politics",
+    "ethics": "Ethics",
+    "technology": "Technology",
+    "law": "Law",
+    "society": "Society"
+  },
+  "difficulty": {
+    "1": "Beginner",
+    "2": "Intermediate",
+    "3": "Advanced"
+  },
+  "login": {
+    "title": "Sign in to LORE",
+    "body": "Enter your email and we'll send you a sign-in link. No password needed.",
+    "email": "Email address",
+    "submit": "Send sign-in link",
+    "sending": "Sending…",
+    "sent": "Sent! Check the inbox for {email} and click the link to sign in.",
+    "invalidEmail": "Please enter a valid email address.",
+    "error": "We couldn't send the link. Please try again later.",
+    "notConfigured": "This site isn't connected to Supabase yet, so sign-in is unavailable.",
+    "privacyNote": "We only use your email to sign you in. It is never shown publicly.",
+    "callbackError": "That sign-in link is invalid or has expired. Please request a new one."
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "guidelines": "Community guidelines",
+    "copyright": "Only short excerpts are shown, always with source and translator."
+  },
+  "question": {
+    "progressLabel": "Reading progress",
+    "demo": "Demo mode: connect Supabase to save, submit and unlock.",
+    "firstThought": {
+      "title": "Before you read: what's your instinct?",
+      "hint": "Don't overthink it — jot down your first thought. You can compare it after reading. (Optional)",
+      "label": "Your first thought",
+      "placeholder": "I think…",
+      "save": "Save and start reading",
+      "skip": "Skip — go straight to the text",
+      "saved": "What you thought before reading",
+      "signIn": "Sign in to save your first thought and write a reflection after reading."
+    },
+    "text": {
+      "title": "Read the text",
+      "view": "View",
+      "modeBoth": "Side by side",
+      "modeZh": "中文",
+      "modeEn": "English",
+      "summaryNote": "The Chinese is a summary written by LORE, not a translation. The English translation is closest to the original.",
+      "summaryLabel": "Summary",
+      "source": "Source: ",
+      "translator": "Translation: ",
+      "finished": "I've finished — write my view",
+      "reread": "Reread the text",
+      "hide": "Hide the text",
+      "comingSoon": "The text for this question is being prepared. Check back soon."
+    },
+    "companion": {
+      "title": "AI Companion",
+      "intro": "Stuck on a word, a person or the background? Select part of the text, or just ask. I'll explain — but I won't tell you the answer.",
+      "selection": "Quoting:",
+      "clearSelection": "Remove quote",
+      "selectHint": "Tip: select a passage in the text to ask about it.",
+      "label": "Your question",
+      "placeholder": "e.g. Who does the \"true pilot\" stand for here?",
+      "send": "Ask",
+      "open": "Ask the AI Companion",
+      "close": "Close",
+      "you": "You",
+      "thinking": "The AI Companion is checking the text…",
+      "remaining": "{count, plural, one {# question} other {# questions}} left today",
+      "disclaimer": "AI can make mistakes. The text itself is the authority.",
+      "signIn": "Sign in to ask the AI Companion.",
+      "errors": {
+        "notConfigured": "The AI Companion isn't set up yet (it needs Supabase and an Anthropic API key).",
+        "signIn": "Please sign in first.",
+        "invalid": "We couldn't process that. Please refresh the page and try again.",
+        "empty": "Type a question, or select a passage in the text first.",
+        "limit": "You've used all of today's questions. Come back tomorrow!",
+        "refused": "I can't answer that one. Try asking another way.",
+        "busy": "The AI Companion is busy right now. Please try again shortly.",
+        "failed": "The AI Companion couldn't respond. Please try again later."
+      }
+    },
+    "insight": {
+      "title": "AI Insight",
+      "intro": "AI groups everyone's reflections into the main views. It describes them; it never judges which is better.",
+      "basedOn": "Based on {count} reflections · updated {date}",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "share": "about {percent}%",
+      "recommend": "Read next",
+      "next": "Next question",
+      "pending": "The AI Insight appears once at least {min} readers have reflected (updated weekly).",
+      "generate": "Generate AI Insight now",
+      "regenerate": "Regenerate",
+      "generating": "Generating… this can take a minute",
+      "adminOnly": "(only admins see this button)",
+      "errors": {
+        "notConfigured": "The Anthropic API key or service-role key isn't set.",
+        "forbidden": "Only admins can generate insights.",
+        "notEnough": "Not enough reflections yet (at least {min} needed).",
+        "refused": "The AI declined to generate this insight. Check the content and try again.",
+        "failed": "Generation failed. Please try again later."
+      }
+    },
+    "reflection": {
+      "title": "Write your view",
+      "hint": "Now that you've read it, how would you answer the question? At least {min} characters. Once you submit, you'll see everyone else's views.",
+      "label": "Your reflection",
+      "count": "{count} / {max} characters",
+      "needMore": "{count} more to go",
+      "anonymous": "Post anonymously (others won't see your nickname)",
+      "saveDraft": "Save draft",
+      "draftSaved": "Draft saved.",
+      "submit": "Submit and unlock others' views",
+      "submitting": "Submitting…",
+      "confirmNamed": "Your reflection will be public under the name \"{name}\". Submit now?",
+      "confirmAnon": "Your reflection will be public, anonymously. Submit now?",
+      "signIn": "Sign in to write a reflection and unlock everyone else's views.",
+      "signInCta": "Sign in",
+      "hiddenNotice": "A moderator has hidden your reflection. Others can't see it.",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "saveEdit": "Save changes"
+    },
+    "unlock": {
+      "title": "Other people's views",
+      "intro": "Unlocked. Here's what other readers think after reading the same text.",
+      "empty": "You're the first to answer. Come back in a few days to see what others think.",
+      "count": "{count, plural, one {# reflection} other {# reflections}}"
+    },
+    "card": {
+      "anonymous": "Anonymous reader",
+      "you": "You",
+      "author": "Author",
+      "like": "Like",
+      "likeCount": "{count, plural, =0 {Like} other {Like · #}}",
+      "replies": "{count, plural, =0 {Reply} other {Replies · #}}",
+      "hideReplies": "Hide replies",
+      "reply": "Reply",
+      "commentLabel": "Your reply",
+      "commentPlaceholder": "Respond to this reflection…",
+      "replyPlaceholder": "Reply to this comment…",
+      "send": "Send",
+      "cancel": "Cancel",
+      "report": "Report",
+      "reportLabel": "Reason for reporting",
+      "reportPlaceholder": "Briefly explain — e.g. personal attack, spam, off-topic…",
+      "reportSend": "Send report",
+      "reported": "Thanks — we've received your report. A moderator will review it.",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this reply?"
+    },
+    "errors": {
+      "notConfigured": "Saving is unavailable in demo mode.",
+      "signIn": "Please sign in first.",
+      "tooShort": "That's too short.",
+      "tooLong": "That's too long.",
+      "empty": "Please write something first.",
+      "profanity": "That contains offensive language. Please rephrase and try again.",
+      "rateLimited": "You're doing that too often. Please wait a moment.",
+      "hidden": "A moderator has hidden this reflection, so it can't be edited.",
+      "locked": "Submit your own reflection first.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "feedback": {
+    "title": "Help us improve LORE",
+    "intro": "One minute of feedback tells us whether LORE actually helped you. (Optional)",
+    "rating": "Overall, how was this reading experience?",
+    "aiHelped": "Did the AI Companion help you understand the text?",
+    "ownView": "After reading, did you form your own view?",
+    "scale": "1 = not at all / poor, 5 = very much / great",
+    "comment": "Anything else you'd like to tell us?",
+    "submit": "Send feedback",
+    "thanks": "Thank you for your feedback!",
+    "required": "Please rate your overall experience first."
+  },
+  "library": {
+    "title": "Library",
+    "intro": "Every classic and question. Filter by theme or difficulty.",
+    "theme": "Theme",
+    "level": "Difficulty",
+    "all": "All",
+    "classics": "Classics",
+    "questions": "Questions",
+    "empty": "No questions match these filters.",
+    "questionCount": "{count, plural, =0 {No questions yet} one {# question} other {# questions}}",
+    "why": "Why read it",
+    "linked": "Questions that start from this book",
+    "noLinked": "No questions yet.",
+    "back": "Back to the library"
+  },
+  "me": {
+    "title": "My LORE",
+    "signInRequired": "Please sign in first.",
+    "nickname": "Nickname",
+    "nicknameHint": "Shown on your reflections and replies (unless you post anonymously). 1–30 characters.",
+    "language": "Interface language",
+    "save": "Save",
+    "saved": "Saved.",
+    "history": "My questions",
+    "historyEmpty": "You haven't started any questions yet.",
+    "status": {
+      "draft": "Draft",
+      "published": "Submitted",
+      "hidden": "Hidden by a moderator"
+    },
+    "open": "Open",
+    "deleteReflection": "Delete reflection",
+    "deleteReflectionConfirm": "Delete this reflection? You'll need to submit again to see other people's views.",
+    "account": "Delete account",
+    "accountBody": "Permanently deletes your account, reflections, replies, likes and feedback. Reading records are kept without your identity for overall statistics. This can't be undone.",
+    "confirmLabel": "Type \"{word}\" to confirm",
+    "confirmWord": "DELETE",
+    "deleteAccount": "Permanently delete my account",
+    "errors": {
+      "invalid": "That isn't valid.",
+      "profanity": "That nickname contains offensive language.",
+      "confirm": "The confirmation word doesn't match.",
+      "notConfigured": "The service-role key isn't set, so accounts can't be deleted yet.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "admin": {
+    "title": "Admin",
+    "demo": "Admin tools need Supabase to be connected.",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "content": "Content",
+      "moderation": "Moderation"
+    },
+    "dashboard": {
+      "users": "Registered users",
+      "visitors": "Visitors",
+      "opened": "Opened the text",
+      "finished": "Finished the text",
+      "reflected": "Submitted a reflection",
+      "feedback": "Gave feedback",
+      "rates": "Rates",
+      "rate": {
+        "completion": "Reading completion",
+        "aiUsage": "AI usage",
+        "reflection": "Reflection submission",
+        "unlock": "Unlock",
+        "discussion": "Discussion participation",
+        "feedback": "Feedback"
+      },
+      "rateHelp": {
+        "completion": "finished ÷ opened the text",
+        "aiUsage": "asked the AI ÷ opened the text",
+        "reflection": "submitted ÷ finished",
+        "unlock": "unlocked ÷ opened the text",
+        "discussion": "replied ÷ unlocked",
+        "feedback": "gave feedback ÷ submitted"
+      },
+      "targets": "Grant targets",
+      "target": {
+        "reach": "Reach 500+",
+        "finish": "Finish reading 400+",
+        "reflections": "Reflections 400+",
+        "feedback": "Feedback rate 10%+"
+      },
+      "satisfaction": "Average feedback (1–5)",
+      "avgRating": "Overall experience",
+      "avgAiHelped": "AI helped understanding",
+      "avgOwnView": "Formed own view",
+      "perQuestion": "By question",
+      "question": "Question",
+      "insight": "AI Insight",
+      "export": "Export CSV",
+      "exportSummary": "Summary",
+      "exportEvents": "Events",
+      "exportFeedback": "Feedback"
+    },
+    "content": {
+      "classics": "Classics",
+      "questions": "Questions",
+      "newClassic": "New classic",
+      "newQuestion": "New question",
+      "edit": "Edit",
+      "save": "Save",
+      "saved": "Saved.",
+      "deleted": "Deleted.",
+      "delete": "Delete",
+      "error": "Couldn't save: {message}",
+      "backToList": "Back to content",
+      "excerpts": "Excerpts",
+      "newExcerpt": "New excerpt",
+      "noExcerpt": "(no text yet)",
+      "copyright": "Short excerpts only, and check copyright: public domain or licensed. Always give the source and translator.",
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "field": {
+        "slug": "URL slug (lowercase letters, numbers, hyphens)",
+        "title_zh": "Title (Chinese)",
+        "title_en": "Title (English)",
+        "author_zh": "Author (Chinese)",
+        "author_en": "Author (English)",
+        "era_zh": "Era (Chinese)",
+        "era_en": "Era (English)",
+        "description_zh": "Description / why read it (Chinese)",
+        "description_en": "Description / why read it (English)",
+        "question_zh": "Question (Chinese)",
+        "question_en": "Question (English)",
+        "tags": "Tags (comma-separated, e.g. politics, ethics)",
+        "difficulty": "Difficulty",
+        "excerpt": "Excerpt",
+        "status": "Status",
+        "featured": "Show in \"Questions of the week\" on the home page",
+        "text_en": "English text / translation (blank line between paragraphs)",
+        "text_zh": "Chinese text (blank line between paragraphs)",
+        "text_zh_is_summary": "The Chinese is a summary, not a translation",
+        "source_note": "Source (e.g. Plato, Republic, Book VI, 488a–489a)",
+        "translator": "Translator / edition and copyright status"
+      }
+    },
+    "moderation": {
+      "open": "Open reports",
+      "none": "No open reports.",
+      "hidden": "Hidden content",
+      "noneHidden": "Nothing is hidden.",
+      "reflection": "Reflection",
+      "comment": "Reply",
+      "missing": "(content has been deleted)",
+      "author": "Author",
+      "reports": "{count, plural, one {# report} other {# reports}}",
+      "hide": "Hide",
+      "unhide": "Unhide",
+      "delete": "Delete permanently",
+      "dismiss": "Dismiss",
+      "deleteConfirm": "Delete permanently?"
+    }
+  },
+  "privacy": {
+    "title": "Privacy",
+    "updated": "Last updated: October 2026",
+    "sections": [
+      { "title": "What we collect", "body": "Your email address (used only to sign you in, never shown publicly), your nickname and language, and what you write on LORE: first thoughts, reflections, replies, likes, reports and feedback. We don't collect your real name, phone number or location." },
+      { "title": "Reading activity", "body": "To measure things like reading completion, we record when you open a question, open the text, finish reading, ask the AI, submit a reflection and reply. Signed-out visitors are counted only by a random ID stored in the browser, which is not linked to anyone's identity." },
+      { "title": "The AI Companion and AI Insight", "body": "When you ask the AI Companion something, your question, any passage you selected and the excerpt are sent to Anthropic's Claude API to produce an explanation. We record only how many questions you asked, not the conversation. To generate an AI Insight, the text of submitted reflections (without nicknames or any identifying details) is sent to the same service to be summarised." },
+      { "title": "Who sees your writing", "body": "A submitted reflection is shown with your nickname to readers who have submitted their own; if you post anonymously, no nickname is shown. Your first thought and drafts are visible only to you. Admins can see all content in order to handle reports." },
+      { "title": "Cookies and local storage", "body": "We use only the cookies needed to keep you signed in, plus a random visitor ID stored in your browser for statistics. There is no advertising or third-party tracking." },
+      { "title": "Deleting your data", "body": "On the \"Me\" page you can delete any reflection, or permanently delete your whole account. Deleting your account also deletes your reflections, replies, likes and feedback; reading records are kept without your identity for overall statistics." },
+      { "title": "Contact", "body": "For privacy questions, email pingheichoi123@gmail.com." }
+    ]
+  },
+  "guidelines": {
+    "title": "Community guidelines",
+    "intro": "LORE is a place to read the text first, then talk seriously. Please help keep it that way.",
+    "sections": [
+      { "title": "Read, then respond", "body": "Before replying, read the text and the other person's reflection. Respond to ideas, not to people." },
+      { "title": "Respect different views", "body": "There is no single right answer on LORE. Disagreeing is welcome, but give your reasons. No mockery, abuse or personal attacks." },
+      { "title": "Not allowed", "body": "Profanity, hate speech or discrimination, harassment, threats, sexual content, advertising or spam, and sharing anyone's private information." },
+      { "title": "Protect privacy", "body": "Don't include your own or anyone else's real name, contact details or other identifying information in reflections or replies." },
+      { "title": "Respect copyright", "body": "When quoting the text or other works, quote briefly and give the source. Don't paste long passages of copyrighted translations or articles." },
+      { "title": "Reporting", "body": "If you see content that breaks these guidelines, press \"Report\". A moderator will review it and may hide or delete it; accounts with serious or repeated violations may be suspended." }
+    ]
+  },
+  "common": {
+    "back": "Back",
+    "loading": "Loading…"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "body": "This page couldn't load just now. Please try again.",
+    "retry": "Try again",
+    "home": "Back to home"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page may have moved.",
+    "home": "Back to home"
+  }
+}

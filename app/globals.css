@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* 古問 LORE design tokens — ink on warm paper, one terracotta accent. */
+@theme {
+  --color-paper: #f6f1ea;
+  --color-paper-deep: #ede5d9;
+  --color-card: #fbf8f3;
+  --color-ink: #2b2a28;
+  --color-ink-soft: #5e5a54;
+  --color-line: #dcd2c4;
+  /* Decorative accent; contrast is too low for small text on paper. */
+  --color-accent: #b5805a;
+  /* Accessible accent for text, links and buttons (≥ 4.5:1 on paper). */
+  --color-accent-strong: #8a5a36;
+
+  --font-serif: var(--font-noto-serif), "Noto Serif TC", "Songti TC", serif;
+  --font-sans: var(--font-noto-sans), "Noto Sans TC", system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
