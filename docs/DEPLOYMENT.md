@@ -56,7 +56,7 @@ You can use the same Supabase project you used for local testing, or create a se
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase `anon` / publishable key |
    | `SUPABASE_SERVICE_ROLE_KEY` | Supabase `service_role` / secret key |
    | `NEXT_PUBLIC_SITE_URL` | `https://<your-site>.vercel.app` (or your custom domain) |
-   | `ADMIN_EMAILS` | `pingheichoi123@gmail.com` (comma-separate more) |
+   | `ADMIN_EMAILS` | `you@example.com` (comma-separate more) |
    | `AI_BASE_URL` | `https://api.deepseek.com` |
    | `AI_API_KEY` | from <https://platform.deepseek.com/api_keys> |
    | `AI_MODEL_CHAT` | `deepseek-flash` |

@@ -199,7 +199,7 @@ npm run build
 
 目前 Supabase 裡有：
 
-- 你的帳號：`kahichan123@gmail.com`，管理員，昵稱 `kakahihi`
+- 你的帳號（`ADMIN_EMAILS` 裡的那個 email），管理員，昵稱 `kakahihi`
 - 一個測試讀者：`lore-test-reader@example.com`，昵稱「測試讀者」，在「誰應該統治？」有一篇反思
 
 測試讀者只為驗收討論功能而設。驗收完可以刪掉：
