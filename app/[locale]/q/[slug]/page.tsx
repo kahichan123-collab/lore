@@ -32,7 +32,7 @@ export default async function QuestionPage({ params }: Props) {
         getCommunity(data.question.id, profile.id),
         isAiConfigured ? createClient().then((db) => remainingAiQuestions(db, profile.id)) : Promise.resolve(null),
       ])
-    : [{ mine: null, feed: [], comments: [], insight: null, hasFeedback: false }, null];
+    : [{ mine: null, feed: [], comments: [], insight: null, hasFeedback: false, total: 0, hasMore: false }, null];
 
   const here = `/${locale}/q/${slug}`;
   return (

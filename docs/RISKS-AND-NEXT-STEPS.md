@@ -1,4 +1,4 @@
-# Remaining risks and next steps
+﻿# Remaining risks and next steps
 
 Status at the end of the MVP build (October 2026).
 
@@ -10,22 +10,22 @@ Status at the end of the MVP build (October 2026).
   - 14 verdict-seeking questions (English and Cantonese) are intercepted, and 8 ordinary comprehension questions get through;
   - when a mocked model answer slips into a conclusion, it is replaced.
 - **Rate limits and analytics:** limits for comments, reports and analytics events; analytics counts each person once; CSV export is protected against spreadsheet-formula injection.
-- **Checks:** 76 automated tests. TypeScript, lint and the production build pass. No known vulnerabilities in production dependencies.
+- **Checks:** 105 automated tests. TypeScript, lint and the production build pass. No known vulnerabilities in production dependencies.
 - **Accessibility:** zero automated (axe-core) violations on every page and every demo step of the question flow, in both languages, on desktop and phone. Keyboard skip link works.
 
 ## Risks, most important first
 
 ### 1. Never run against real Supabase and a real AI
 
-Everything was built and tested without live keys. The database rules are tested on real Postgres, and the pages in demo mode, but the full path has not run end to end: sign-in email → submit → unlock → discuss → AI answer → AI Insight.
+Everything was built and tested without live keys. The database rules are tested on real Postgres, and the pages in demo mode, but the full path has not run end to end: sign-in email ??submit ??unlock ??discuss ??AI answer ??AI Insight.
 
-**Action:** run the checklist in [DEPLOYMENT.md §6](DEPLOYMENT.md#6-check-it-works-do-this-before-telling-anyone-the-url) before any pilot.
+**Action:** run the checklist in [DEPLOYMENT.md 禮6](DEPLOYMENT.md#6-check-it-works-do-this-before-telling-anyone-the-url) before any pilot.
 
 ### 2. The seed text must be checked word for word
 
-The English *Republic* excerpt (Jowett, Book VI 488a–489a) was entered from memory, not copied from the source.
+The English *Republic* excerpt (Jowett, Book VI 488a??89a) was entered from memory, not copied from the source.
 
-**Action:** compare it with [Project Gutenberg #1497](https://www.gutenberg.org/ebooks/1497) and correct it in **Admin → Content**.
+**Action:** compare it with [Project Gutenberg #1497](https://www.gutenberg.org/ebooks/1497) and correct it in **Admin ??Content**.
 
 ### 3. Sign-in emails
 
@@ -39,9 +39,9 @@ The English *Republic* excerpt (Jowett, Book VI 488a–489a) was entered from me
 
 - **Guardrails reduce the risk; they don't remove it.** The guards are keyword-based. A persistent student can still nudge the model towards an opinion, for example through role-play over several turns. The earlier turns in a conversation are sent from the browser, so a technical user could also fake them.
 - **Pre-launch test:** before the pilot, spend 30 minutes trying to make it give a verdict, in Cantonese, written Chinese and English, and note anything that gets through.
-- **Cost:** the default model is Claude Opus 5.5. Each user is capped at 20 questions a day, but there is no overall cap. **Set a monthly spend limit in the Anthropic Console.** Switch to `claude-haiku-5-5` if the budget is tight.
+- **Cost:** the default chat model is `deepseek-flash`, and the default Insight model is `deepseek-v4-pro`. Each user is capped at 20 questions a day, but there is no overall cap. **Set a monthly spend limit in the DeepSeek console.** Switch `AI_MODEL_INSIGHT` to `deepseek-flash` if the budget is tight.
 - **AI Insight timing:** a large Insight may take more than a minute. If Vercel's Hobby plan stops it partway, it fails and nothing is saved. Try again with fewer reflections, use the cheaper model, or upgrade the plan.
-- **Data sharing:** reflection text (never names) is sent to Anthropic for the Insight, and the privacy page says so. Check that this is acceptable to your grant body or university.
+- **Data sharing:** reflection text (never names) is sent to DeepSeek for the Insight, and the privacy page says so. Check that this is acceptable to your grant body or university.
 
 ### 5. Research ethics and privacy law
 
@@ -52,13 +52,13 @@ If the feedback, analytics or reflections will be used in a grant report or publ
 ### 6. Moderation depends on people
 
 - **Profanity filter:** the list is deliberately small, and Cantonese slang changes quickly.
-- **No alerts:** there's no notification when something is reported, so someone must check **Admin → Moderation** regularly, ideally daily during the pilot.
+- **No alerts:** there's no notification when something is reported, so someone must check **Admin ??Moderation** regularly, ideally daily during the pilot.
 - **No audit log:** moderation actions aren't recorded, so you can't see who hid or deleted what.
 
 ### 7. Free-tier limits
 
 - **Supabase pausing:** a free Supabase project **pauses after 7 days without activity**, for example over a holiday. The site then shows the error page until someone restores it from the Supabase dashboard.
-- **No backups:** free Supabase has no downloadable backups. Export the CSVs after each milestone. For the full database, use `pg_dump` (see Supabase docs → Backups).
+- **No backups:** free Supabase has no downloadable backups. Export the CSVs after each milestone. For the full database, use `pg_dump` (see Supabase docs ??Backups).
 
 ### 8. Analytics accuracy
 
@@ -66,7 +66,7 @@ If the feedback, analytics or reflections will be used in a grant report or publ
 - **Inflated counts:** an analytics event from one person is capped at 120 per hour, which stops spam inflating the numbers. A determined person could still add fake signed-out visitors.
 - **Definitions:**
   - **Reflections:** one reflection per question, so a person who answers two questions counts twice.
-  - **Unlock rate:** people who unlocked ÷ people who opened the text.
+  - **Unlock rate:** people who unlocked 繩 people who opened the text.
 
   Check these match your grant proposal.
 
@@ -86,20 +86,21 @@ Automated checks catch only part of the problems a person would.
 
 **Before a pilot**
 
-1. Connect Supabase (production project) and the Anthropic key. Run the [deployment checklist](DEPLOYMENT.md#6-check-it-works-do-this-before-telling-anyone-the-url).
-2. Verify the *Republic* excerpt against Gutenberg.
+1. Connect Supabase (production project) and the DeepSeek key. Run the [deployment checklist](DEPLOYMENT.md#6-check-it-works-do-this-before-telling-anyone-the-url).
+2. Spot-check the eight seed excerpts against the Gutenberg links in the README.
 3. Set up Resend SMTP. Test sign-in with three or more CUHK email addresses and on phones.
-4. Try to break the AI guardrails (see risk 4), and set the Anthropic spend limit.
+4. Try to break the AI guardrails with `npm run ai:trap`, and set the DeepSeek spend limit.
 5. Confirm the ethics and consent requirements (see risk 5).
 
-**Pilot (10–20 students)**
+**Pilot (10??0 students)**
 
 6. Watch a few students use it. Note where they get stuck, especially sign-in and the step order.
 7. Read every AI Companion answer students mention, and adjust `lib/ai/prompts.ts` if it drifts.
-8. Write excerpts for the four placeholder questions: majority rule, AI and thinking, unjust law, goodness and happiness. Public-domain candidates include Mill's *On Liberty*, Plato's *Crito* and Aristotle's *Nicomachean Ethics*.
+8. Review the new content (8 classics, 20 questions) with a teacher or subject expert before the pilot.
 
 **After the pilot**
 
 9. Add a 6-digit sign-in code, an email alert for new reports, and a moderation log.
 10. Add Playwright end-to-end tests and run all tests on GitHub Actions for every push.
 11. Upgrade to Next.js 16 and add a Content-Security-Policy.
+

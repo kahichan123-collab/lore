@@ -37,7 +37,10 @@ export default async function AdminContent({ params }: { params: Promise<{ local
       <section aria-labelledby="questions">
         <div className="flex items-center justify-between">
           <h2 id="questions" className="font-serif text-xl">{t("questions")}</h2>
-          <Link href="/admin/content/question/new" className="text-sm text-accent-strong underline underline-offset-4">+ {t("newQuestion")}</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/content/import" className="text-sm text-accent-strong underline underline-offset-4">↑ {t("import")}</Link>
+            <Link href="/admin/content/question/new" className="text-sm text-accent-strong underline underline-offset-4">+ {t("newQuestion")}</Link>
+          </div>
         </div>
         <ul className="mt-4 divide-y divide-line rounded-lg border border-line bg-card">
           {(questions ?? []).map((q) => (

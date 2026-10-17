@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { routing } from "@/i18n/routing";
@@ -42,10 +42,14 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return reply({ error: "signIn" }, 401);
 
-  let remaining = await remainingAiQuestions(supabase, user.id);
+  const remaining = await remainingAiQuestions(supabase, user.id);
 
-  // Asking for a verdict: answer with a guiding question, without calling the model.
-  if (seeksConclusion(question)) return reply({ answer: guidingReply(locale), remaining });
+  // Asking for a verdict: answer with a guiding question, without calling the
+  // model or using up the reader's quota. Still record that they asked.
+  if (seeksConclusion(question)) {
+    await supabase.from("events").insert({ user_id: user.id, question_id: questionId, type: "ask_ai" });
+    return reply({ answer: guidingReply(locale), remaining });
+  }
 
   if (remaining <= 0) return reply({ error: "limit", remaining: 0 }, 429);
 
@@ -58,22 +62,22 @@ export async function POST(request: NextRequest) {
     console.error("Could not log AI usage:", usageError.message);
     return reply({ error: "failed" }, 500);
   }
-  remaining -= 1;
+  const left = Math.max(0, remaining - 1);
   await supabase.from("events").insert({ user_id: user.id, question_id: questionId, type: "ask_ai" });
 
   try {
     const result = await askCompanion({ context, locale, question, quote, history });
-    if (result.kind === "refused") return reply({ error: "refused", remaining });
-    return reply({ answer: result.text, remaining });
+    if (result.kind === "refused") return reply({ error: "refused", remaining: left });
+    return reply({ answer: result.text, remaining: left });
   } catch (error) {
-    if (error instanceof Anthropic.RateLimitError || error instanceof Anthropic.InternalServerError) {
-      return reply({ error: "busy", remaining }, 503);
-    }
-    if (error instanceof Anthropic.APIError) {
-      console.error(`Anthropic API error ${error.status}:`, error.message);
+    if (error instanceof OpenAI.APIError) {
+      if (error.status === 429 || (error.status ?? 0) >= 500) {
+        return reply({ error: "busy", remaining: left }, 503);
+      }
+      console.error(`DeepSeek API error ${error.status}:`, error.message);
     } else {
       console.error("AI Companion failed:", error);
     }
-    return reply({ error: "failed", remaining }, 502);
+    return reply({ error: "failed", remaining: left }, 502);
   }
 }

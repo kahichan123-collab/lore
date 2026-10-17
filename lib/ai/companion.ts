@@ -1,7 +1,7 @@
 import "server-only";
-import type Anthropic from "@anthropic-ai/sdk";
+import type OpenAI from "openai";
 import type { Locale } from "@/i18n/routing";
-import { AI_MODEL, anthropic, fallbackParams } from "./client";
+import { AI_MODEL_CHAT, ai } from "./client";
 import { givesConclusion, guidingReply } from "./guard";
 import { companionSystemPrompt, companionUserMessage, type QuestionContext } from "./prompts";
 
@@ -13,7 +13,7 @@ export interface Turn {
 export type CompanionResult = { kind: "answer"; text: string } | { kind: "refused" };
 
 /** Earlier turns, kept only if they alternate user/assistant as the API requires. */
-function historyMessages(history: Turn[]): Anthropic.Beta.BetaMessageParam[] {
+function historyMessages(history: Turn[]): OpenAI.Chat.ChatCompletionMessageParam[] {
   const turns = history.slice(-6);
   while (turns[0]?.role === "assistant") turns.shift();
   if (turns.length % 2 !== 0 || turns.some((t, i) => t.role !== (i % 2 === 0 ? "user" : "assistant"))) return [];
@@ -30,25 +30,20 @@ export async function askCompanion(input: {
   quote?: string;
   history: Turn[];
 }): Promise<CompanionResult> {
-  const response = await anthropic().beta.messages.create({
-    model: AI_MODEL,
-    max_tokens: 8000,
-    // Short explanations don't need deep reasoning; low effort keeps cost and latency down.
-    output_config: { effort: "low" },
-    system: companionSystemPrompt(input.context, input.locale),
+  const response = await ai().chat.completions.create({
+    model: AI_MODEL_CHAT,
+    max_tokens: 800,
+    temperature: 0.3,
+    // Explanations don't need chain-of-thought; this keeps answers fast and cheap.
+    reasoning_effort: "none",
     messages: [
+      { role: "system", content: companionSystemPrompt(input.context, input.locale) },
       ...historyMessages(input.history),
       { role: "user", content: companionUserMessage(input.question, input.quote) },
     ],
-    ...fallbackParams(AI_MODEL),
   });
 
-  if (response.stop_reason === "refusal") return { kind: "refused" };
-
-  const text = response.content
-    .map((block) => (block.type === "text" ? block.text : ""))
-    .join("")
-    .trim();
+  const text = (response.choices[0]?.message?.content ?? "").trim();
   if (!text) return { kind: "refused" };
 
   if (givesConclusion(text)) {

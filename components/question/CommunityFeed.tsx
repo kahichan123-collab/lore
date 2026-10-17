@@ -2,7 +2,7 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { saveReflection, setLike, type ActionError } from "@/lib/actions/question";
+import { loadMoreReflections, saveReflection, setLike, type ActionError } from "@/lib/actions/question";
 import { LIMITS, charCount, cleanText } from "@/lib/text";
 import type { FeedComment, FeedReflection } from "@/lib/types";
 import { CommentThread } from "./CommentThread";
@@ -14,31 +14,70 @@ export function CommunityFeed({
   questionId,
   feed,
   comments,
+  total,
+  hasMore,
 }: {
   questionId: string;
   feed: FeedReflection[];
   comments: FeedComment[];
+  total: number;
+  hasMore: boolean;
 }) {
   const t = useTranslations("question.unlock");
-  const ordered = [...feed.filter((r) => r.is_mine), ...feed.filter((r) => !r.is_mine)];
-  const others = feed.length - feed.filter((r) => r.is_mine).length;
+  const [extraReflections, setExtraReflections] = useState<FeedReflection[]>([]);
+  const [extraComments, setExtraComments] = useState<FeedComment[]>([]);
+  const [more, setMore] = useState(hasMore);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<ActionError | null>(null);
+
+  const items = [...feed, ...extraReflections.filter((r) => !feed.some((f) => f.id === r.id))];
+  const allComments = [...comments, ...extraComments.filter((c) => !comments.some((x) => x.id === c.id))];
+  const count = Math.max(total, items.length);
+
+  async function loadMore() {
+    setLoading(true);
+    setError(null);
+    const result = await loadMoreReflections({ questionId, offset: items.length });
+    if (result.ok) {
+      setExtraReflections((prev) => [...prev, ...result.reflections]);
+      setExtraComments((prev) => [...prev, ...result.comments]);
+      setMore(items.length + result.reflections.length < count);
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
+  }
 
   return (
     <div>
       <p className="leading-relaxed text-ink-soft">{t("intro")}</p>
-      <p className="mt-1 text-sm text-ink-soft">{t("count", { count: feed.length })}</p>
+      <p className="mt-1 text-sm text-ink-soft">{t("count", { count })}</p>
       <ul className="mt-6 space-y-4">
-        {ordered.map((r) => (
+        {items.map((r) => (
           <li key={r.id}>
             <ReflectionCard
               reflection={r}
               questionId={questionId}
-              comments={comments.filter((c) => c.reflection_id === r.id)}
+              comments={allComments.filter((c) => c.reflection_id === r.id)}
             />
           </li>
         ))}
       </ul>
-      {others === 0 && <p className="mt-6 rounded-lg border border-dashed border-line p-5 text-ink-soft">{t("empty")}</p>}
+      {items.length === 0 && <p className="mt-6 rounded-lg border border-dashed border-line p-5 text-ink-soft">{t("empty")}</p>}
+
+      {more && (
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loading}
+            className="rounded-full border border-line px-5 py-2 text-sm hover:border-accent disabled:opacity-60"
+          >
+            {loading ? t("loadingMore") : t("loadMore")}
+          </button>
+        </div>
+      )}
+      <ErrorText error={error} />
     </div>
   );
 }

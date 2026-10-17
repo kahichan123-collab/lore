@@ -1,24 +1,37 @@
 import "server-only";
-import Anthropic from "@anthropic-ai/sdk";
-
-/** Change the model with ANTHROPIC_MODEL in .env.local — no code change needed. */
-export const AI_MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5-5";
-export const AI_DAILY_LIMIT = Math.max(1, Number(process.env.AI_DAILY_LIMIT) || 20);
-export const isAiConfigured = Boolean(process.env.ANTHROPIC_API_KEY);
-
-let client: Anthropic | null = null;
-export function anthropic(): Anthropic {
-  client ??= new Anthropic();
-  return client;
-}
+import OpenAI from "openai";
 
 /**
- * Some models' safety classifiers can occasionally decline a harmless
- * request. On models that support it, `fallbacks: "default"` lets the API
- * retry on a fallback model automatically instead of returning a refusal.
+ * DeepSeek exposes an OpenAI-compatible Chat Completions API. The official
+ * docs (October 2026) give:
+ *   base URL  https://api.deepseek.com
+ *   models    deepseek-flash | deepseek-v4-pro
+ * Everything provider-specific comes from the environment so the app can be
+ * pointed at another OpenAI-compatible provider later.
  */
-export function fallbackParams(model: string) {
-  return /^claude-(opus-5|fable-5|sonnet-5-5)/.test(model)
-    ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
-    : {};
+export const AI_BASE_URL = (process.env.AI_BASE_URL || "https://api.deepseek.com").replace(/\/+$/, "");
+export const AI_MODEL_CHAT = process.env.AI_MODEL_CHAT || "deepseek-flash";
+export const AI_MODEL_INSIGHT = process.env.AI_MODEL_INSIGHT || "deepseek-v4-pro";
+
+/** Questions per reader per 24 hours. */
+export const AI_DAILY_LIMIT = Math.max(
+  1,
+  Number(process.env.AI_DAILY_LIMIT_PER_USER) || Number(process.env.AI_DAILY_LIMIT) || 20,
+);
+
+export const isAiConfigured = Boolean(process.env.AI_API_KEY);
+
+let client: OpenAI | null = null;
+
+/** Server-only DeepSeek client. Throws if AI_API_KEY is missing. */
+export function ai(): OpenAI {
+  const apiKey = process.env.AI_API_KEY;
+  if (!apiKey) throw new Error("AI_API_KEY is not set");
+  client ??= new OpenAI({
+    apiKey,
+    baseURL: AI_BASE_URL,
+    timeout: 60_000,
+    maxRetries: 1,
+  });
+  return client;
 }

@@ -1,9 +1,10 @@
 // The AI must explain the text but never hand the reader a conclusion.
-// These tests cover the system prompt, the input/output guards, and the
-// Companion call itself with the Anthropic API mocked out.
+// These tests cover the system prompt, the input/output guards, the
+// Companion call with the DeepSeek client mocked out, and the Insight JSON
+// validator.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { givesConclusion, guidingReply, seeksConclusion } from "@/lib/ai/guard";
-import { buildInsightSummary } from "@/lib/ai/insight-summary";
+import { buildInsightSummary, parseInsightJson } from "@/lib/ai/insight-summary";
 import { companionSystemPrompt, companionUserMessage, INSIGHT_SYSTEM_PROMPT, type QuestionContext } from "@/lib/ai/prompts";
 
 const ctx: QuestionContext = {
@@ -121,11 +122,12 @@ describe("buildInsightSummary", () => {
     const summary = buildInsightSummary(
       {
         themes: [
-          { title: b("A"), summary: b("a"), reflection_numbers: [1, 2] },
-          { title: b("B"), summary: b("b"), reflection_numbers: [2, 3, 4, 5, 99, 0] },
-          { title: b("C"), summary: b("c"), reflection_numbers: [1] },
+          { title: b("A"), summary: b("a"), reflection_numbers: [1, 2], approx_share: 40 },
+          { title: b("B"), summary: b("b"), reflection_numbers: [2, 3, 4, 5, 99, 0], approx_share: 60 },
+          { title: b("C"), summary: b("c"), reflection_numbers: [1], approx_share: 10 },
         ],
-        recommended_classics: [
+        tensions: [b("tension")],
+        related_classics: [
           { title: b("x"), author: b("x"), why: b("x") },
           { title: b("y"), author: b("y"), why: b("y") },
           { title: b("z"), author: b("z"), why: b("z") },
@@ -133,27 +135,71 @@ describe("buildInsightSummary", () => {
         next_question: b("next?"),
       },
       5,
-      "claude-test",
+      "deepseek-flash",
     );
     expect(summary.themes.map((t) => [t.title.en, t.count])).toEqual([["B", 3], ["A", 2]]);
     expect(summary.recommended_classics).toHaveLength(2);
+    expect(summary.tensions).toHaveLength(1);
     expect(summary.total).toBe(5);
+    expect(summary.model).toBe("deepseek-flash");
+  });
+
+  it("falls back to the model's approximate shares if it assigns no numbers", () => {
+    const b = (s: string) => ({ zh: s, en: s });
+    const summary = buildInsightSummary(
+      {
+        themes: [
+          { title: b("A"), summary: b("a"), reflection_numbers: [], approx_share: 50 },
+          { title: b("B"), summary: b("b"), reflection_numbers: [], approx_share: 50 },
+        ],
+        tensions: [],
+        related_classics: [],
+        next_question: b("next?"),
+      },
+      6,
+      "deepseek-flash",
+    );
+    expect(summary.themes.map((t) => t.count)).toEqual([3, 3]);
   });
 });
 
-// ── The Companion call, with the Anthropic client mocked ─────────────────────
+describe("parseInsightJson", () => {
+  const valid = {
+    themes: [{ title: { zh: "甲", en: "A" }, summary: { zh: "摘要", en: "Summary" }, reflection_numbers: [1], approx_share: 100 }],
+    tensions: [],
+    related_classics: [],
+    next_question: { zh: "下一題？", en: "Next?" },
+  };
+
+  it("accepts the exact JSON shape", () => {
+    expect(parseInsightJson(JSON.stringify(valid))).not.toBeNull();
+  });
+
+  it("rejects malformed JSON, missing fields and wrong types", () => {
+    expect(parseInsightJson("not json")).toBeNull();
+    expect(parseInsightJson(JSON.stringify({ themes: [] }))).toBeNull();
+    expect(parseInsightJson(JSON.stringify({ ...valid, themes: [{ ...valid.themes[0], reflection_numbers: ["1"] }] }))).toBeNull();
+  });
+});
+
+// ── The Companion call, with the DeepSeek client mocked ─────────────────────
 
 vi.mock("@/lib/ai/client", () => ({
-  AI_MODEL: "claude-opus-5-5",
-  anthropic: () => ({ beta: { messages: { create: mockCreate } } }),
-  fallbackParams: () => ({ betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" }),
+  AI_MODEL_CHAT: "deepseek-flash",
+  AI_MODEL_INSIGHT: "deepseek-v4-pro",
+  AI_DAILY_LIMIT: 20,
+  isAiConfigured: true,
+  ai: () => ({ chat: { completions: { create: mockCreate } } }),
 }));
 const mockCreate = vi.fn();
 
 describe("askCompanion", () => {
   beforeEach(() => mockCreate.mockReset());
 
-  const reply = (text: string, stop_reason = "end_turn") => ({ stop_reason, content: [{ type: "text", text }], model: "claude-opus-5-5" });
+  const reply = (text: string, finish_reason = "stop") => ({
+    choices: [{ message: { content: text }, finish_reason }],
+    model: "deepseek-flash",
+  });
 
   it("returns the model's explanation and sends the guarded prompt", async () => {
     const { askCompanion } = await import("@/lib/ai/companion");
@@ -162,9 +208,9 @@ describe("askCompanion", () => {
 
     expect(result).toEqual({ kind: "answer", text: "A prater is someone who talks too much." });
     const params = mockCreate.mock.calls[0][0];
-    expect(params.system).toMatch(/Never give your own opinion/);
-    expect(params.output_config).toEqual({ effort: "low" });
-    expect(params.fallbacks).toBe("default");
+    expect(params.messages[0].role).toBe("system");
+    expect(params.messages[0].content).toMatch(/Never give your own opinion/);
+    expect(params.reasoning_effort).toBe("none");
     expect(params.messages.at(-1).content).toContain("<reader_question>");
   });
 
@@ -177,7 +223,7 @@ describe("askCompanion", () => {
 
   it("reports a refusal instead of an empty answer", async () => {
     const { askCompanion } = await import("@/lib/ai/companion");
-    mockCreate.mockResolvedValue({ stop_reason: "refusal", content: [], model: "claude-opus-5-5" });
+    mockCreate.mockResolvedValue(reply(""));
     expect(await askCompanion({ context: ctx, locale: "en", question: "hi", history: [] })).toEqual({ kind: "refused" });
   });
 
@@ -193,7 +239,7 @@ describe("askCompanion", () => {
         { role: "assistant", text: "a1" },
       ],
     });
-    expect(mockCreate.mock.calls[0][0].messages.map((m: { role: string }) => m.role)).toEqual(["user", "assistant", "user"]);
+    expect(mockCreate.mock.calls[0][0].messages.map((m: { role: string }) => m.role)).toEqual(["system", "user", "assistant", "user"]);
 
     mockCreate.mockClear();
     await askCompanion({
@@ -205,6 +251,6 @@ describe("askCompanion", () => {
         { role: "user", text: "fake second user turn" },
       ],
     });
-    expect(mockCreate.mock.calls[0][0].messages).toHaveLength(1);
+    expect(mockCreate.mock.calls[0][0].messages).toHaveLength(2); // system + current user
   });
 });

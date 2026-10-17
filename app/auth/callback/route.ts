@@ -15,12 +15,25 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       // Open the site in the reader's saved language.
-      const { data: profile } = await supabase.from("profiles").select("language").eq("id", data.user.id).maybeSingle();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("language, nickname_chosen")
+        .eq("id", data.user.id)
+        .maybeSingle();
       const preferred = profile?.language;
       const [, current] = next.split("/");
       if (preferred && hasLocale(routing.locales, preferred) && hasLocale(routing.locales, current) && current !== preferred) {
         next = next.replace(`/${current}`, `/${preferred}`);
       }
+
+      // First-time readers choose a nickname before continuing.
+      if (profile && profile.nickname_chosen === false) {
+        const locale = next.split("/")[1] || routing.defaultLocale;
+        return NextResponse.redirect(
+          new URL(`/${locale}/welcome?next=${encodeURIComponent(next)}`, origin),
+        );
+      }
+
       return NextResponse.redirect(new URL(next, origin));
     }
   }

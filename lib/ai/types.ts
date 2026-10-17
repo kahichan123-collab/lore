@@ -14,4 +14,4 @@ export type CompanionResponse = { answer: string; remaining: number } | { error:
 export type InsightError = "notConfigured" | "forbidden" | "notEnough" | "refused" | "failed";
 
 /** Fewest submitted reflections before an AI Insight is generated. */
-export const MIN_REFLECTIONS_FOR_INSIGHT = 3;
+export const MIN_REFLECTIONS_FOR_INSIGHT = 5;

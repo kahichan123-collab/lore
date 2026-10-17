@@ -1,14 +1,52 @@
 import "server-only";
-import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import OpenAI from "openai";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { AI_MODEL, anthropic, fallbackParams, isAiConfigured } from "./client";
+import { AI_MODEL_INSIGHT, ai, isAiConfigured } from "./client";
 import { loadQuestionContext } from "./context";
-import { InsightOutputSchema, buildInsightSummary } from "./insight-summary";
-import { INSIGHT_SYSTEM_PROMPT, insightUserMessage } from "./prompts";
+import { buildInsightSummary, parseInsightJson, type InsightOutput } from "./insight-summary";
+import { INSIGHT_SYSTEM_PROMPT, insightUserMessage, type QuestionContext } from "./prompts";
 import { MIN_REFLECTIONS_FOR_INSIGHT, type InsightError } from "./types";
 
 const MAX_REFLECTIONS = 300;
+
+type InsightCall =
+  | { ok: true; output: InsightOutput; model: string }
+  | { ok: false; error: "refused" | "failed" };
+
+/**
+ * One attempt at the model call. DeepSeek's JSON mode guarantees valid JSON
+ * syntax, not our schema, so the caller validates and retries once.
+ */
+async function requestInsight(
+  context: QuestionContext,
+  reflections: string[],
+): Promise<InsightCall> {
+  const response = await ai().chat.completions.create({
+    model: AI_MODEL_INSIGHT,
+    max_tokens: 8_000,
+    temperature: 0.2,
+    // Summarising benefits from some reasoning, but not the maximum effort.
+    reasoning_effort: "high",
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: INSIGHT_SYSTEM_PROMPT },
+      { role: "user", content: insightUserMessage(context, reflections) },
+    ],
+  });
+
+  const choice = response.choices[0];
+  if (choice?.finish_reason === "content_filter") return { ok: false, error: "refused" };
+
+  const text = choice?.message?.content ?? "";
+  if (!text.trim()) return { ok: false, error: "failed" };
+
+  const output = parseInsightJson(text);
+  if (!output) {
+    console.error("Insight: model output did not match the JSON schema.");
+    return { ok: false, error: "failed" };
+  }
+  return { ok: true, output, model: response.model || AI_MODEL_INSIGHT };
+}
 
 /**
  * Summarises a question's published reflections into neutral themes and
@@ -38,29 +76,22 @@ export async function generateInsight(questionId: string): Promise<{ ok: true } 
   if (reflections.length < MIN_REFLECTIONS_FOR_INSIGHT) return { ok: false, error: "notEnough" };
 
   try {
-    const response = await anthropic().beta.messages.parse({
-      model: AI_MODEL,
-      max_tokens: 16000,
-      output_config: { effort: "medium", format: betaZodOutputFormat(InsightOutputSchema) },
-      system: INSIGHT_SYSTEM_PROMPT,
-      messages: [{ role: "user", content: insightUserMessage(context, reflections) }],
-      ...fallbackParams(AI_MODEL),
-    });
-    if (response.stop_reason === "refusal") return { ok: false, error: "refused" };
-    if (!response.parsed_output) {
-      console.error("Insight: model output did not match the schema; stop_reason =", response.stop_reason);
-      return { ok: false, error: "failed" };
-    }
+    let result = await requestInsight(context, reflections);
+    // One retry, as the brief requires. A second malformed answer is a failure.
+    if (!result.ok && result.error !== "refused") result = await requestInsight(context, reflections);
+    if (!result.ok) return { ok: false, error: result.error };
 
-    const summary = buildInsightSummary(response.parsed_output, reflections.length, response.model);
-    const { error: insertError } = await db.from("ai_insights").insert({ question_id: questionId, summary_json: summary });
+    const summary = buildInsightSummary(result.output, reflections.length, result.model);
+    const { error: insertError } = await db
+      .from("ai_insights")
+      .insert({ question_id: questionId, summary_json: summary, response_count: reflections.length });
     if (insertError) {
       console.error("Insight: could not save:", insertError.message);
       return { ok: false, error: "failed" };
     }
     return { ok: true };
   } catch (err) {
-    if (err instanceof Anthropic.APIError) console.error(`Insight: Anthropic API error ${err.status}:`, err.message);
+    if (err instanceof OpenAI.APIError) console.error(`Insight: DeepSeek API error ${err.status}:`, err.message);
     else console.error("Insight failed:", err);
     return { ok: false, error: "failed" };
   }

@@ -31,7 +31,7 @@ export async function updateProfile(_prev: ProfileState, formData: FormData): Pr
   if (!language.success || charCount(nickname) < 1 || charCount(nickname) > 30) return { status: "error", error: "invalid" };
   if (containsProfanity(nickname)) return { status: "error", error: "profanity" };
 
-  const { error } = await ctx.supabase.from("profiles").update({ nickname, language: language.data }).eq("id", ctx.user.id);
+  const { error } = await ctx.supabase.from("profiles").update({ nickname, language: language.data, nickname_chosen: true }).eq("id", ctx.user.id);
   if (error) {
     console.error("updateProfile:", error.message);
     return { status: "error", error: "generic" };

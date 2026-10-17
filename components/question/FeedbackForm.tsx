@@ -23,12 +23,48 @@ function Scale({ name, label, value, onChange }: { name: string; label: string; 
   );
 }
 
-/** Optional 1–5 feedback after unlocking, for the grant report. */
+function Choice({
+  name,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  name: string;
+  label: string;
+  value: number | null;
+  onChange: (v: number) => void;
+  options: { value: number; label: string }[];
+}) {
+  return (
+    <fieldset>
+      <legend className="text-sm font-medium">{label}</legend>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {options.map((option) => (
+          <label key={option.value} className="cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => onChange(option.value)}
+              className="peer sr-only"
+            />
+            <span className="inline-flex min-h-10 items-center rounded-full border border-line px-4 text-sm peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline-2 peer-focus-visible:outline-accent-strong hover:border-accent">
+              {option.label}
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+/** Optional feedback after unlocking, for the grant report. */
 export function FeedbackForm({ questionId }: { questionId: string }) {
   const t = useTranslations("feedback");
   const [rating, setRating] = useState<number | null>(null);
   const [aiHelped, setAiHelped] = useState<number | null>(null);
-  const [ownView, setOwnView] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<ActionError | null>(null);
   const [missing, setMissing] = useState(false);
@@ -44,7 +80,7 @@ export function FeedbackForm({ questionId }: { questionId: string }) {
         e.preventDefault();
         if (!rating) return setMissing(true);
         startTransition(async () => {
-          const result = await submitFeedback({ questionId, rating, aiHelped, ownView, comment });
+          const result = await submitFeedback({ questionId, rating, aiHelped, ownView: null, comment });
           if (result.ok) setDone(true);
           else setError(result.error);
         });
@@ -56,8 +92,17 @@ export function FeedbackForm({ questionId }: { questionId: string }) {
         <p className="mt-1 text-xs text-ink-soft">{t("scale")}</p>
       </div>
       <Scale name="rating" label={t("rating")} value={rating} onChange={(v) => { setRating(v); setMissing(false); }} />
-      <Scale name="aiHelped" label={t("aiHelped")} value={aiHelped} onChange={setAiHelped} />
-      <Scale name="ownView" label={t("ownView")} value={ownView} onChange={setOwnView} />
+      <Choice
+        name="aiHelped"
+        label={t("aiHelped")}
+        value={aiHelped}
+        onChange={setAiHelped}
+        options={[
+          { value: 5, label: t("yes") },
+          { value: 3, label: t("somewhat") },
+          { value: 1, label: t("no") },
+        ]}
+      />
       <div>
         <label htmlFor="feedback-comment" className="text-sm font-medium">{t("comment")}</label>
         <textarea

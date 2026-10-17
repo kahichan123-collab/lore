@@ -5,6 +5,7 @@ import { z } from "zod";
 import { isSupabaseConfigured } from "@/lib/env";
 import { containsProfanity } from "@/lib/moderation";
 import { createClient } from "@/lib/supabase/server";
+import type { FeedComment, FeedReflection } from "@/lib/types";
 import { LIMITS, charCount, cleanText } from "@/lib/text";
 
 // All writes run as the signed-in user, so RLS and the database triggers
@@ -43,12 +44,17 @@ function fail(error: ActionError): ActionResult {
   return { ok: false, error };
 }
 
+function errorCode(error: { message: string; code?: string }): ActionError {
+  if (/too many/i.test(error.message)) return "rateLimited";
+  if (/hidden by a moderator/i.test(error.message)) return "hidden";
+  if (/row-level security/i.test(error.message)) return "locked";
+  return "generic";
+}
+
 function dbError(error: { message: string; code?: string }): ActionResult {
-  if (/too many/i.test(error.message)) return fail("rateLimited");
-  if (/hidden by a moderator/i.test(error.message)) return fail("hidden");
-  if (/row-level security/i.test(error.message)) return fail("locked");
-  console.error("Database error:", error.message);
-  return fail("generic");
+  const code = errorCode(error);
+  if (code === "generic") console.error("Database error:", error.message);
+  return fail(code);
 }
 
 /** Step 2: the reader's first instinct, saved on their (draft) reflection. */
@@ -163,6 +169,45 @@ export async function addComment(input: {
   return { ok: true };
 }
 
+/** Next page of the community feed, newest first. Requires the same unlock. */
+export type LoadMoreResult =
+  | { ok: true; reflections: FeedReflection[]; comments: FeedComment[] }
+  | { ok: false; error: ActionError };
+
+export async function loadMoreReflections(input: { questionId: string; offset: number }): Promise<LoadMoreResult> {
+  const ctx = await signedIn();
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  if (
+    !uuid.safeParse(input.questionId).success ||
+    !Number.isInteger(input.offset) ||
+    input.offset < 0 ||
+    input.offset > 10_000
+  ) {
+    return { ok: false, error: "generic" };
+  }
+
+  const [feed, comments] = await Promise.all([
+    ctx.supabase.rpc("reflection_feed", {
+      p_question: input.questionId,
+      p_limit: 20,
+      p_offset: input.offset,
+    }),
+    ctx.supabase.rpc("comment_feed", { p_question: input.questionId }),
+  ]);
+  if (feed.error) return { ok: false, error: errorCode(feed.error) };
+  if (comments.error) return { ok: false, error: errorCode(comments.error) };
+
+  return {
+    ok: true,
+    reflections: (feed.data as FeedReflection[]).map((r) => ({
+      ...r,
+      like_count: Number(r.like_count),
+      comment_count: Number(r.comment_count),
+    })),
+    comments: comments.data as FeedComment[],
+  };
+}
+
 export async function deleteComment(input: { commentId: string }): Promise<ActionResult> {
   const ctx = await signedIn();
   if (!ctx.ok) return fail(ctx.error);
@@ -243,6 +288,13 @@ export async function submitFeedback(input: {
   });
   // 23505 = already gave feedback for this question.
   if (error && error.code !== "23505") return dbError(error);
+  if (!error) {
+    await ctx.supabase.from("events").insert({
+      user_id: ctx.userId,
+      question_id: parsed.data.questionId,
+      type: "feedback",
+    });
+  }
   return { ok: true };
 }
 

@@ -7,6 +7,8 @@ export interface Profile {
   nickname: string;
   language: Language;
   is_admin: boolean;
+  /** False until a first-time reader has chosen a nickname on /welcome. */
+  nickname_chosen: boolean;
   created_at: string;
 }
 
@@ -89,6 +91,8 @@ export interface QuestionPageData {
   question: Pick<Question, "id" | "slug" | "question_zh" | "question_en" | "tags" | "difficulty">;
   excerpt: Pick<Excerpt, "id" | "text_zh" | "text_en" | "text_zh_is_summary" | "source_note" | "translator"> | null;
   classic: Pick<Classic, "slug" | "title_zh" | "title_en" | "author_zh" | "author_en"> | null;
+  /** Published reflections, shown as a count while the reader is still locked. */
+  reflectionCount: number;
 }
 
 /** A question card on the home page / library. */

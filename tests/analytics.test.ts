@@ -14,6 +14,7 @@ let q2: string;
 interface Row {
   question_id: string | null;
   visitors: number;
+  visitors_signed_in: number;
   opened_text: number;
   finished_text: number;
   reflected: number;
@@ -54,10 +55,11 @@ describe("admin_analytics", () => {
     const one = rows.find((r) => r.question_id === q1)!;
     const two = rows.find((r) => r.question_id === q2)!;
 
-    expect([one.visitors, one.opened_text, one.finished_text, one.reflected].map(Number)).toEqual([3, 2, 1, 1]);
+    expect([one.visitors, one.visitors_signed_in, one.opened_text, one.finished_text, one.reflected].map(Number)).toEqual([3, 2, 2, 1, 1]);
     expect(Number(two.visitors)).toBe(1);
     // Bob visited both questions but is one person overall.
     expect(Number(total.visitors)).toBe(3);
+    expect(Number(total.visitors_signed_in)).toBe(2);
     expect(Number(one.feedback_count)).toBe(2);
     expect(Number(one.avg_rating)).toBe(4);
     expect(Number(total.feedback_count)).toBe(2);
@@ -65,6 +67,32 @@ describe("admin_analytics", () => {
 
   it("refuses non-admins", async () => {
     await expect(as(db, ALICE, () => db.query(`select * from admin_analytics()`))).rejects.toThrow(/admin only/);
+    await expect(as(db, ALICE, () => db.query(`select * from analytics_summary`))).rejects.toThrow(/admin only/);
+  });
+
+  it("exposes the same rows through the analytics_summary view", async () => {
+    const { rows } = await as(db, ADMIN, () => db.query<Row>(`select * from analytics_summary`));
+    const total = rows.find((r) => r.question_id === null)!;
+    expect(Number(total.visitors)).toBe(3);
+  });
+
+  it("filters events and feedback by date range", async () => {
+    await db.query(
+      `insert into events (user_id, question_id, type, created_at)
+       values ($1, $2, 'view_question', '2026-02-01T00:00:00Z')`,
+      [ALICE, q1],
+    );
+    const { rows } = await as(db, ADMIN, () =>
+      db.query<Row>(`select * from admin_analytics('2026-02-01T00:00:00Z', '2026-03-01T00:00:00Z')`));
+    const total = rows.find((r) => r.question_id === null)!;
+    expect(Number(total.visitors)).toBe(1);
+    expect(Number(total.feedback_count)).toBe(0);
+  });
+
+  it("accepts the feedback event type", async () => {
+    await db.query(`insert into events (user_id, question_id, type) values ($1, $2, 'feedback')`, [ALICE, q1]);
+    const { rows } = await db.query<{ n: number }>(`select count(*) as n from events where type = 'feedback'`);
+    expect(Number(rows[0].n)).toBe(1);
   });
 
   it("allows one feedback per person per question, readable by its author only", async () => {

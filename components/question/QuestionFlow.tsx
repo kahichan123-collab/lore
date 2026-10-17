@@ -53,7 +53,7 @@ export function QuestionFlow({
   nickname: string | null;
   loginHref: string;
 }) {
-  const { question, excerpt, classic } = data;
+  const { question, excerpt, classic, reflectionCount } = data;
   const { mine, feed, comments, insight } = community;
   const t = useTranslations("question");
   const locale = useLocale() as Locale;
@@ -183,6 +183,11 @@ export function QuestionFlow({
                     nickname={nickname}
                     loginHref={loginHref}
                   />
+                  {!submitted && (
+                    <p className="mt-4 rounded-lg border border-dashed border-line bg-paper-deep px-4 py-3 text-sm text-ink-soft">
+                      {t("unlock.locked", { count: reflectionCount })}
+                    </p>
+                  )}
                 </div>
               </section>
             )}
@@ -197,7 +202,13 @@ export function QuestionFlow({
                   </div>
                 )}
                 <div className="mt-4">
-                  <CommunityFeed questionId={question.id} feed={feed} comments={comments} />
+                  <CommunityFeed
+                    questionId={question.id}
+                    feed={feed}
+                    comments={comments}
+                    total={community.total}
+                    hasMore={community.hasMore}
+                  />
                 </div>
               </section>
             )}

@@ -18,7 +18,14 @@ const SUPABASE_STUB = `
   grant execute on function auth.uid() to anon, authenticated;
 `;
 
-const MIGRATIONS = ["0001_schema.sql", "0002_rls.sql", "0003_admin_analytics.sql", "0004_rate_limits.sql"];
+const MIGRATIONS = [
+  "0001_schema.sql",
+  "0002_rls.sql",
+  "0003_admin_analytics.sql",
+  "0004_rate_limits.sql",
+  "0005_stage1_spec_gaps.sql",
+  "0006_stage2_7.sql",
+];
 
 export async function createTestDb() {
   const db = new PGlite();
@@ -26,6 +33,14 @@ export async function createTestDb() {
   for (const file of MIGRATIONS) {
     await db.exec(readFileSync(join(__dirname, "../../supabase/migrations", file), "utf8"));
   }
+  return db;
+}
+
+/** The single-file installer offered to the human, with the same stub. */
+export async function createAllInOneDb() {
+  const db = new PGlite();
+  await db.exec(SUPABASE_STUB);
+  await db.exec(readFileSync(join(__dirname, "../../supabase/install/lore_all_in_one.sql"), "utf8"));
   return db;
 }
 

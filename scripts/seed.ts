@@ -53,6 +53,14 @@ async function main() {
   check(await db.from("questions").upsert(questions, { onConflict: "slug" }), "questions");
   console.log(`✓ ${questions.length} question(s)`);
 
+  // The original MVP had three placeholder questions with no excerpt. They
+  // are kept for anyone who already wrote a reflection, but removed from the
+  // library so the published set is exactly the twenty seeded questions.
+  const obsolete = ["think-for-ourselves", "unjust-law", "good-and-happy"];
+  const { error: archiveError } = await db.from("questions").update({ status: "archived" }).in("slug", obsolete);
+  if (archiveError) throw new Error(`archive old placeholders: ${archiveError.message}`);
+  console.log("✓ old placeholder questions archived (if present)");
+
   const admins = (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((e) => e.trim().toLowerCase())

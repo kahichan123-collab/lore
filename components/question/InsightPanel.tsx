@@ -63,6 +63,17 @@ export function InsightPanel({
             })}
           </ul>
 
+          {s.tensions && s.tensions.length > 0 && (
+            <div className="mt-8 border-t border-line pt-5">
+              <h3 className="font-medium">{t("tensions")}</h3>
+              <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-ink-soft">
+                {s.tensions.map((tension, i) => (
+                  <li key={i}>{tension[lang]}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {s.recommended_classics.length > 0 && (
             <div className="mt-8 border-t border-line pt-5">
               <h3 className="font-medium">{t("recommend")}</h3>

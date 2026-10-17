@@ -40,10 +40,12 @@ beforeEach(async () => {
 
 describe("sign-up", () => {
   it("creates a profile and makes listed emails admins (case-insensitive)", async () => {
-    const { rows } = await db.query<{ id: string; is_admin: boolean }>(`select id, is_admin from profiles order by id`);
+    const { rows } = await db.query<{ id: string; is_admin: boolean; nickname_chosen: boolean }>(
+      `select id, is_admin, nickname_chosen from profiles order by id`);
     expect(rows).toHaveLength(3);
     expect(rows.find((r) => r.id === ADMIN)?.is_admin).toBe(true);
     expect(rows.find((r) => r.id === ALICE)?.is_admin).toBe(false);
+    expect(rows.every((r) => r.nickname_chosen === false)).toBe(true);
   });
 
   it("does not let a user make themselves admin", async () => {
@@ -110,6 +112,44 @@ describe("unlock rule", () => {
     expect((await as(db, BOB, () => db.query(`select * from ai_insights`))).rows).toHaveLength(0);
     await publish(BOB);
     expect((await as(db, BOB, () => db.query(`select * from ai_insights`))).rows).toHaveLength(1);
+  });
+
+  it("does not let a signed-in admin write an AI insight from the browser", async () => {
+    await expect(
+      as(db, ADMIN, () =>
+        db.query(`insert into ai_insights (question_id, summary_json) values ($1, '{}')`, [questionId])),
+    ).rejects.toThrow(/permission denied|row-level security/);
+  });
+
+  it("shows only a count while locked, then the same count after unlocking", async () => {
+    const before = await as(db, BOB, () =>
+      db.query<{ n: number }>(`select question_reflection_count($1) as n`, [questionId]));
+    expect(Number(before.rows[0].n)).toBe(1);
+
+    await publish(BOB);
+    const after = await as(db, BOB, () =>
+      db.query<{ n: number }>(`select question_reflection_count($1) as n`, [questionId]));
+    expect(Number(after.rows[0].n)).toBe(2);
+  });
+
+  it("paginates the feed newest first without leaking beyond the requested page", async () => {
+    await publish(BOB);
+    const first = await as(db, BOB, () =>
+      db.query<{ id: string }>(`select id from reflection_feed($1, 1, 0)`, [questionId]));
+    const second = await as(db, BOB, () =>
+      db.query<{ id: string }>(`select id from reflection_feed($1, 1, 1)`, [questionId]));
+    expect(first.rows).toHaveLength(1);
+    expect(second.rows).toHaveLength(1);
+    expect(first.rows[0].id).not.toBe(second.rows[0].id);
+    const all = await as(db, BOB, () =>
+      db.query(`select id from reflection_feed($1, 10, 0)`, [questionId]));
+    expect(all.rows).toHaveLength(2);
+  });
+
+  it("keeps the ai_usage view private, too", async () => {
+    await db.query(`insert into ai_messages_usage (user_id, question_id) values ($1, $2)`, [ALICE, questionId]);
+    expect((await as(db, BOB, () => db.query(`select * from ai_usage`))).rows).toHaveLength(0);
+    expect((await as(db, ALICE, () => db.query(`select * from ai_usage`))).rows).toHaveLength(1);
   });
 });
 

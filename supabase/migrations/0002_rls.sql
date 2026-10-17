@@ -272,6 +272,18 @@ revoke all on all functions in schema public from public, anon, authenticated;
 
 grant usage on schema public to anon, authenticated;
 
+-- The service role is the server's privileged connection: seeding, the AI
+-- Insight job and account deletion. It bypasses RLS, but it still needs
+-- ordinary table privileges. Supabase usually grants these by default; we
+-- make it explicit so a project created by a different role still works.
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+grant all on all functions in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+alter default privileges in schema public grant execute on functions to service_role;
+
 grant select on public.classics, public.excerpts, public.questions to anon, authenticated;
 grant insert, update, delete on public.classics, public.excerpts, public.questions to authenticated;
 

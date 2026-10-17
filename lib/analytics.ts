@@ -4,6 +4,7 @@
 export interface AnalyticsRow {
   question_id: string | null;
   visitors: number;
+  visitors_signed_in: number;
   opened_text: number;
   finished_text: number;
   asked_ai: number;
@@ -16,7 +17,7 @@ export interface AnalyticsRow {
   avg_own_view: number | null;
 }
 
-const COUNTS = ["visitors", "opened_text", "finished_text", "asked_ai", "reflected", "unlocked", "commented", "feedback_count"] as const;
+const COUNTS = ["visitors", "visitors_signed_in", "opened_text", "finished_text", "asked_ai", "reflected", "unlocked", "commented", "feedback_count"] as const;
 const AVERAGES = ["avg_rating", "avg_ai_helped", "avg_own_view"] as const;
 
 /** Postgres bigint/numeric arrive as strings; make them numbers. */
