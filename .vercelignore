@@ -1,0 +1,8 @@
+# Never upload secrets or local build artifacts to Vercel.
+.env.local
+.env.vercel.local
+.env*.local
+.next
+node_modules
+supabase/.temp
+*.tsbuildinfo
