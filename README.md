@@ -6,7 +6,7 @@ An interactive classics-reading platform: start from a contemporary question, re
 
 Stack: Next.js 15 (App Router) · TypeScript · Tailwind CSS 4 · Supabase (Postgres, RLS, magic-link auth) · DeepSeek API (OpenAI-compatible) · next-intl (繁體中文 / English).
 
-**Docs:** [Deploying to Vercel + Supabase](docs/DEPLOYMENT.md) · [Remaining risks and next steps](docs/RISKS-AND-NEXT-STEPS.md) · [Stage 1 audit](docs/STAGE-1-AUDIT.md) · [Stage 1 setup checklist](docs/STAGE-1-CHECKLIST.md) · [第一階段設定清單（中文）](docs/STAGE-1-CHECKLIST.zh-CN.md) · [目前完成狀態（中文）](docs/FINAL-STATUS.zh-CN.md)
+**Docs:** [Deploying to Vercel + Supabase](docs/DEPLOYMENT.md) · [Remaining risks and next steps](docs/RISKS-AND-NEXT-STEPS.md) · [Stage 1 audit](docs/STAGE-1-AUDIT.md) · [Stage 1 setup checklist](docs/STAGE-1-CHECKLIST.md) · [第一階段設定清單（中文）](docs/STAGE-1-CHECKLIST.zh-CN.md) · [目前完成狀態（中文）](docs/FINAL-STATUS.zh-CN.md) · [交付與驗收指南（中文）](docs/HANDOVER.zh-CN.md)
 
 > **Status:** the code is wired for Supabase + DeepSeek, with 8 classics, 20 questions, feedback, pagination, date-filtered analytics and an import tool. It has **not yet run against a live Supabase project or a live DeepSeek key**; the remaining live checks are listed in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
