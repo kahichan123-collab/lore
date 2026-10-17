@@ -2,6 +2,11 @@
 
 更新日期：2026 年 10 月 18 日
 
+> **本次已部署的正式網址：** <https://lore-eight-omega.vercel.app/zh-HK>
+>
+> Vercel 專案：`gpad2/lore`。資料庫仍是同一個 Supabase 專案，已匯入 8 本經典、20 個問題。
+> 部署後仍需在 Supabase → Authentication → URL Configuration 把 Site URL 和 Redirect URL 改成這個網址（見第 1 節第 5 步）。
+
 這份文件是給「驗收同事」看的。你可以把這個檔案、GitHub repo（或 ZIP）和網站網址一起交給他。
 
 ---
